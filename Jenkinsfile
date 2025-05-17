@@ -34,7 +34,7 @@ pipeline {
 
         stage('Run Ansible Ping') {
             steps {
-                sshagent (credentials: ['ansible_ssh_key']) { // Replace with your Jenkins credential ID
+                sshagent (credentials: ['ansible_ssh_user']) { // Replace with your Jenkins credential ID
                     sh '''
                     echo "Pinging ${TARGET_HOST} from inventory.ini"
                     ansible-playbook -i inventory.ini ping.yml --limit=${TARGET_HOST}
