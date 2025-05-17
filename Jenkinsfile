@@ -32,7 +32,7 @@ pipeline {
                 sh '''
                 if ! command -v ansible-playbook >/dev/null 2>&1; then
                     echo "Installing Ansible..."
-                    sudo apt update && sudo apt install -y ansible
+                    sudo yum update && sudo yum install -y ansible
                 fi
                 '''
             }
