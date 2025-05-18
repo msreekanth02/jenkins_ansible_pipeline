@@ -7,6 +7,10 @@ pipeline {
         disableConcurrentBuilds()
     }
 
+    environment {
+	ANSIBLE_REMOTE_HOST = 'ansible@192.168.1.200'
+    }
+
     parameters {
         choice(
             name: 'TARGET_HOST',
@@ -42,8 +46,9 @@ pipeline {
             steps {
                 sshagent (credentials: ['ansible_ssh_user']) {
                     sh '''
+                    ssh -o StrictHostKeyChecking=no $ANSIBLE_REMOTE_HOST \
+		    "cd /home/ansible/playbooks/jenkins_ansible_pipeline && ansible-playbook -i inventory.ini ping.yml --limit=${TARGET_HOST}
                     echo "Pinging ${TARGET_HOST} from inventory.ini"
-                    ansible-playbook -i inventory.ini ping.yml --limit=${TARGET_HOST}
                     '''
                 }
             }
