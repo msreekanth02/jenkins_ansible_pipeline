@@ -50,9 +50,9 @@ pipeline {
                 sshagent (credentials: ['ssh_ansible_key']) {
                     sh """
                         ssh ${REMOTE_USER}@${REMOTE_HOST} '
-                            cd ${REMOTE_DIR} &&
-                            echo "Running ansible ping for ${TARGET_HOST}" &&
-                            ansible-playbook -i inventory.ini ping.yml --limit=${TARGET_HOST} -f 5
+                            cd ${REMOTE_DIR}/playbooks &&
+                            echo "Running ${PLAYBOOK_TO_RUN} for ${TARGET_HOST}" &&
+                            ansible-playbook -i inventory.ini ${PLAYBOOK_TO_RUN} --limit=${TARGET_HOST} -f 5
                         '
                     """
                 }
@@ -62,7 +62,7 @@ pipeline {
 
     post {
         always {
-            echo "Ansible ping task completed for ${TARGET_HOST}"
+            echo "Ansible ${PLAYBOOK_TO_RUN} task has been completed for ${TARGET_HOST}"
         }
     }
 }
