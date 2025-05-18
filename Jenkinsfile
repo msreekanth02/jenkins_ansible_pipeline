@@ -40,7 +40,7 @@ pipeline {
 
         stage('Run Ansible Ping') {
             steps {
-                sshagent (credentials: ['ansible_ssh_key']) {
+                sshagent (credentials: ['ssh_ansible_key']) {
                     sh '''
 		    "cd /home/ansible/playbooks/jenkins_ansible_pipeline && ansible-playbook -i inventory.ini ping.yml --limit=${TARGET_HOST}
                     echo "Pinging ${TARGET_HOST} from inventory.ini"
