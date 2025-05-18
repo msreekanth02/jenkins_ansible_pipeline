@@ -17,6 +17,9 @@ pipeline {
     environment {
         ANSIBLE_HOST_KEY_CHECKING = 'False'
         ANSIBLE_FORCE_COLOR = 'True'
+        REMOTE_USER = 'ansible'
+        REMOTE_HOST = '192.168.1.200' // <-- Replace with your Ansible controller IP
+        REMOTE_DIR = '/home/ansible/jenkins_ansible_pipeline'
     }
 
     stages {
@@ -26,24 +29,26 @@ pipeline {
             }
         }
 
-        stage('Install Ansible (if missing)') {
-            steps {
-                sh '''
-                    if ! command -v ansible-playbook >/dev/null 2>&1; then
-                        echo "Installing Ansible..."
-                        sudo yum update -y && sudo yum install -y ansible
-                    fi
-                '''
-            }
-        }
-
-        stage('Run Ansible Ping') {
+        stage('Copy Code to Ansible Controller') {
             steps {
                 sshagent (credentials: ['ssh_ansible_key']) {
                     sh """
-                        cd /home/ansible/playbooks/jenkins_ansible_pipeline
-                        echo "Pinging ${TARGET_HOST} from inventory.ini"
-                        ansible-playbook -i inventory.ini ping.yml --limit=${TARGET_HOST} -f 5
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'mkdir -p ${REMOTE_DIR}'
+                        rsync -avz --delete ./ ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/
+                    """
+                }
+            }
+        }
+
+        stage('Run Ansible Ping Remotely') {
+            steps {
+                sshagent (credentials: ['ssh_ansible_key']) {
+                    sh """
+                        ssh ${REMOTE_USER}@${REMOTE_HOST} '
+                            cd ${REMOTE_DIR} &&
+                            echo "Running ansible ping for ${TARGET_HOST}" &&
+                            ansible-playbook -i inventory.ini ping.yml --limit=${TARGET_HOST} -f 5
+                        '
                     """
                 }
             }
