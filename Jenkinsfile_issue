@@ -1,6 +1,7 @@
 pipeline {
     agent any
 
+    // 👇 This ensures Jenkins always exposes parameters
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
@@ -29,10 +30,10 @@ pipeline {
         stage('Install Ansible (if missing)') {
             steps {
                 sh '''
-                    if ! command -v ansible-playbook >/dev/null 2>&1; then
-                        echo "Installing Ansible..."
-                        sudo yum update -y && sudo yum install -y ansible
-                    fi
+                if ! command -v ansible-playbook >/dev/null 2>&1; then
+                    echo "Installing Ansible..."
+                    sudo yum update && sudo yum install -y ansible
+                fi
                 '''
             }
         }
@@ -40,11 +41,11 @@ pipeline {
         stage('Run Ansible Ping') {
             steps {
                 sshagent (credentials: ['ssh_ansible_key']) {
-                    sh """
-                        cd /home/ansible/playbooks/jenkins_ansible_pipeline
-                        echo "Pinging ${TARGET_HOST} from inventory.ini"
-                        ansible-playbook -i inventory.ini ping.yml --limit=${TARGET_HOST} -f 5
-                    """
+                    sh '''
+		    "cd /home/ansible/playbooks/jenkins_ansible_pipeline && ansible-playbook -i inventory.ini ping.yml --limit=${TARGET_HOST}
+                    echo "Pinging ${TARGET_HOST} from inventory.ini"
+                    ansible-playbook ping.yml -i inventory.ini -f 5 --limit=${TARGET_HOST}
+                    '''
                 }
             }
         }
