@@ -12,6 +12,11 @@ pipeline {
             choices: ['all', 'ansible_controller', 'ansible_node1', 'ansible_node2', 'ansible_node3', 'ansible_node4'],
             description: 'Select the host or group to target with Ansible ping'
         )
+        choice(
+            name: 'PLAYBOOK_TO_RUN',
+            choices: ['ping.yml', 'gather_system_info.yml', 'custom_playbook.yml'], // Add more playbooks here
+            description: 'Select the playbook to run'
+        )
     }
 
     environment {

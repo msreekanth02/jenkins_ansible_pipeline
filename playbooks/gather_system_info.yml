@@ -1,0 +1,34 @@
+---
+- name: Gather system info for all inventory hosts
+  hosts: all
+  gather_facts: yes
+  become: false
+
+  tasks:
+    - name: Display hostname
+      debug:
+        msg: "Hostname: {{ ansible_hostname }}"
+
+    - name: Display uptime
+      shell: uptime -p
+      register: uptime_result
+      changed_when: false
+
+    - name: Show uptime
+      debug:
+        msg: "Uptime: {{ uptime_result.stdout }}"
+
+    - name: Display architecture
+      debug:
+        msg: "Architecture: {{ ansible_architecture }}"
+
+    - name: Display CentOS version
+      shell: cat /etc/centos-release
+      register: centos_version
+      changed_when: false
+      when: ansible_distribution == "CentOS"
+
+    - name: Show CentOS version
+      debug:
+        msg: "CentOS Version: {{ centos_version.stdout | default('Not CentOS') }}"
+
