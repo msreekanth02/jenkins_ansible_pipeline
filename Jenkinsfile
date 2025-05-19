@@ -52,7 +52,7 @@ pipeline {
                         ssh ${REMOTE_USER}@${REMOTE_HOST} '
                             cd ${REMOTE_DIR}/playbooks &&
                             echo "Running ${PLAYBOOK_TO_RUN} for ${TARGET_HOST}" &&
-                            ansible-playbook -i inventory.ini ${PLAYBOOK_TO_RUN} --limit=${TARGET_HOST} -f 5
+                            ansible-playbook -i ../inventory.ini ${PLAYBOOK_TO_RUN} --limit=${TARGET_HOST} -f 5
                         '
                     """
                 }
@@ -62,7 +62,7 @@ pipeline {
 
     post {
         always {
-            echo "Ansible ${PLAYBOOK_TO_RUN} task has been completed for ${TARGET_HOST}"
+            echo "Playbook '${PLAYBOOK_TO_RUN}' execution completed for '${TARGET_HOST}'"
         }
     }
 }
